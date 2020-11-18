@@ -10,13 +10,7 @@ final class DefinedSymbolCollector extends AbstractFileSymbolCollector
 {
     protected function symbolName(Node $node): ?string
     {
-        if ($node instanceof Node\Stmt\Class_) {
-            return self::namespacedName($node);
-        }
-        if ($node instanceof Node\Stmt\Interface_) {
-            return self::namespacedName($node);
-        }
-        if ($node instanceof Node\Stmt\Trait_) {
+        if ($node instanceof Node\Stmt\ClassLike) {
             return self::namespacedName($node);
         }
         if ($node instanceof Node\Stmt\Function_) {

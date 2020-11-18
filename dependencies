@@ -1,7 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-use Midnight\DependencyAnalyzer\Project;
+use Midnight\DependencyAnalyzer\Command\AnalyzeCommand;
+use Symfony\Component\Console\Application;
 
 const POSSIBLE_AUTOLOAD_PATHS = [
     __DIR__ . '/../../autoload.php',
@@ -16,24 +17,6 @@ foreach (POSSIBLE_AUTOLOAD_PATHS as $file) {
     require_once $file;
 }
 
-$projectRoot = \Safe\realpath($argv[1] ?? '.');
-$verbose = ($argv[2] ?? '') === '-v';
-
-$project = new Project($projectRoot);
-$projectFiles = $project->countFiles();
-
-foreach ($project->dependencies() as $dependency) {
-    $usingFiles = $project->countFilesUsingSymbolsFrom($dependency);
-    $usage = ((float)$usingFiles / (float)$projectFiles) * 100.0;
-    echo \Safe\sprintf("%s (used by %.2f%% of all files)\n", $dependency->name(), $usage);
-
-    if (!$verbose) {
-        continue;
-    }
-
-    foreach ($project->usedSymbolsDefinedBy($dependency) as $symbol) {
-        $nFiles = $project->countFilesUsing($symbol);
-        $usage = ((float)$nFiles / (float)$projectFiles) * 100.0;
-        echo \Safe\sprintf("  %s (used in %.2f%% of all files)\n", $symbol, $usage);
-    }
-}
+$app = new Application('Dependency Analyzer');
+$app->add(new AnalyzeCommand());
+$app->run();

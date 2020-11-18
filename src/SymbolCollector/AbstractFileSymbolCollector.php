@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Midnight\DependencyAnalyzer\SymbolCollector;
 
 use PhpParser\Node;
+use PhpParser\Node\Stmt\ClassLike;
+use PhpParser\Node\Stmt\Function_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
@@ -23,6 +25,9 @@ abstract class AbstractFileSymbolCollector extends NodeVisitorAbstract implement
         $this->file = $file;
     }
 
+    /**
+     * @param ClassLike|Function_ $node
+     */
     protected static function namespacedName(Node $node): ?string
     {
         if (!property_exists($node, 'namespacedName')) {

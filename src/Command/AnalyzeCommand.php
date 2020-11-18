@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Midnight\DependencyAnalyzer\Command;
+
+use Midnight\DependencyAnalyzer\Project;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+final class AnalyzeCommand extends Command
+{
+    private const NAME = 'analyze';
+    private const PROJECT_PATH = 'project_path';
+
+    protected function configure(): void
+    {
+        parent::configure();
+
+        $this->setName(self::NAME)
+            ->addArgument(
+                self::PROJECT_PATH,
+                InputArgument::OPTIONAL,
+                'Root path of the project to be analyzed. Defaults to the current working directory.',
+                '.'
+            );
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        /** @var string $projectRoot */
+        $projectRoot = $input->getArgument(self::PROJECT_PATH);
+        $verbose = $output->isVerbose();
+
+        $project = new Project($projectRoot);
+        $projectFiles = $project->countFiles();
+
+        foreach ($project->dependencies() as $dependency) {
+            $usingFiles = $project->countFilesUsingSymbolsFrom($dependency);
+            $usage = (float)$usingFiles / (float)$projectFiles * 100.0;
+
+            if ($usage < 1) {
+                $template = "%s (used by <fg=red>%.2f%%</> of all files)";
+            } elseif ($usage < 5) {
+                $template = "%s (used by <fg=yellow>%.2f%%</> of all files)";
+            } else {
+                $template = "%s (used by %.2f%% of all files)";
+            }
+            $output->writeln(\Safe\sprintf($template, $dependency->name(), $usage));
+
+            if (!$verbose) {
+                continue;
+            }
+
+            foreach ($project->usedSymbolsDefinedBy($dependency) as $symbol) {
+                $nFiles = $project->countFilesUsing($symbol);
+                $usage = (float)$nFiles / (float)$projectFiles * 100.0;
+
+                if ($usage < 10) {
+                    $template = '  %s (used in <fg=red>%.2f%%</> of all files)';
+                } else {
+                    $template = '  %s (used in %.2f%% of all files)';
+                }
+
+                $output->writeln(\Safe\sprintf($template, $symbol, $usage));
+            }
+        }
+
+        return 0;
+    }
+}
