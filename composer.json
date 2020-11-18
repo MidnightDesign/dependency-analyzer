@@ -1,6 +1,6 @@
 {
     "name": "midnight/dependency-analyzer",
-    "type": "project",
+    "type": "library",
     "description": "Detects dependencies that you might be able to get rid of",
     "license": "MIT",
     "authors": [
