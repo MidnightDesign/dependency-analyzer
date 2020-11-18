@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+use Midnight\DependencyAnalyzer\Project;
+
+const POSSIBLE_AUTOLOAD_PATHS = [
+    __DIR__ . '/../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php',
+];
+
+foreach (POSSIBLE_AUTOLOAD_PATHS as $file) {
+    if (!file_exists($file)) {
+        continue;
+    }
+    require_once $file;
+}
+
+$projectRoot = \Safe\realpath($argv[1] ?? '.');
+$verbose = ($argv[2] ?? '') === '-v';
+
+$project = new Project($projectRoot);
+$projectFiles = $project->countFiles();
+
+foreach ($project->dependencies() as $dependency) {
+    $usingFiles = $project->countFilesUsingSymbolsFrom($dependency);
+    $usage = ((float)$usingFiles / (float)$projectFiles) * 100.0;
+    echo \Safe\sprintf("%s (used by %.2f%% of all files)\n", $dependency->name(), $usage);
+
+    if (!$verbose) {
+        continue;
+    }
+
+    foreach ($project->usedSymbolsDefinedBy($dependency) as $symbol) {
+        $nFiles = $project->countFilesUsing($symbol);
+        $usage = ((float)$nFiles / (float)$projectFiles) * 100.0;
+        echo \Safe\sprintf("  %s (used in %.2f%% of all files)\n", $symbol, $usage);
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "name": "midnight/dependency-analyzer",
+    "type": "project",
+    "description": "Detects dependencies that you might be able to get rid of",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rudolph Gottesheim",
+            "email": "r.gottesheim@midnight-design.at"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-json": "*",
+        "nikic/php-parser": "^4.10",
+        "symfony/polyfill-php80": "^1.20",
+        "thecodingmachine/safe": "^1.3"
+    },
+    "require-dev": {
+        "eventjet/coding-standard": "^3.2",
+        "phpstan/extension-installer": "^1.0",
+        "phpstan/phpstan": "^0.12.56",
+        "phpstan/phpstan-strict-rules": "^0.12.5",
+        "thecodingmachine/phpstan-safe-rule": "^1.0",
+        "vimeo/psalm": "^4.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Midnight\\DependencyAnalyzer\\": "src"
+        },
+        "files": [
+            "src/composer.php",
+            "src/collections.php"
+        ]
+    },
+    "minimum-stability": "stable",
+    "bin": [
+        "dependencies"
+    ],
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@psalm",
+            "@phpstan"
+        ],
+        "cs-check": "vendor/bin/phpcs",
+        "cs-fix": "vendor/bin/phpcbf",
+        "phpstan": "vendor/bin/phpstan analyse",
+        "psalm": "vendor/bin/psalm"
+    }
+}
