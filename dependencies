@@ -18,5 +18,10 @@ foreach (POSSIBLE_AUTOLOAD_PATHS as $file) {
 }
 
 $app = new Application('Dependency Analyzer');
-$app->add(new AnalyzeCommand());
+$analyzeCommand = new AnalyzeCommand();
+$app->add($analyzeCommand);
+$analyzeCommandName = $analyzeCommand->getName();
+if ($analyzeCommandName !== null) {
+    $app->setDefaultCommand($analyzeCommandName);
+}
 $app->run();
