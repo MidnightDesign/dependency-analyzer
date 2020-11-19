@@ -26,7 +26,7 @@ final class PackageFileCollector
         foreach ($autoload['psr-4'] ?? [] as $directories) {
             $directories = is_string($directories) ? [$directories] : $directories;
             foreach ($directories as $directory) {
-                yield from FileCollector::collect($this->packageRoot . '/' . $directory);
+                yield from (new FileCollector($this->packageRoot . '/' . $directory))->collect();
             }
         }
         foreach ($autoload['files'] ?? [] as $file) {

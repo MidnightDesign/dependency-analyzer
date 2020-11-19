@@ -23,7 +23,7 @@ final class DirectorySymbolCollector implements SymbolCollectorInterface
      */
     public function collect(): iterable
     {
-        foreach (FileCollector::collect($this->directory) as $file) {
+        foreach ((new FileCollector($this->directory))->collect() as $file) {
             foreach (($this->createFileSymbolCollector)($file)->collect() as $symbol) {
                 yield $symbol;
             }

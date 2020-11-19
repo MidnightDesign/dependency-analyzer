@@ -6,18 +6,29 @@ namespace Midnight\DependencyAnalyzer;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
+
+use function assert;
 
 final class FileCollector
 {
+    private string $directory;
+
+    public function __construct(string $directory)
+    {
+        $this->directory = $directory;
+    }
+
     /**
      * @return iterable<int, string>
      */
-    public static function collect(string $directory): iterable
+    public function collect(): iterable
     {
-        $directoryIterator = new RecursiveDirectoryIterator($directory);
+        $directoryIterator = new RecursiveDirectoryIterator($this->directory);
         $iterator = new RecursiveIteratorIterator($directoryIterator);
         foreach ($iterator as $file) {
-            if (!$file->isFile()) {
+            assert($file instanceof SplFileInfo);
+            if (!$file->isFile() || $file->getExtension() !== 'php') {
                 continue;
             }
             $file = $file->getRealPath();
